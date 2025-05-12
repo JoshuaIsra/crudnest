@@ -1,27 +1,21 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Employee {
+export class Position {
     @PrimaryGeneratedColumn()
     id :number;
-    
+
     @Column()
     name :string;
 
     @Column()
-    lastName : string;
-
-    @Column({
-        unique:true
-    })
-    email: string;
+    description : string;
 
     @Column()
-    position:string;
-
-    @Column({
-        default: true,
-    })
-    status : boolean;
+    salary: number;
     
+    @Column({
+        default:true
+    })
+    isActive : boolean;
 }
