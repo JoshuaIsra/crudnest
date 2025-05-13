@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,15 +33,49 @@ export class PositionsService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} position`;
+  async findOne(id: number) {
+    try {
+      const position = this.PositionRep.findOneBy({id:id});
+      if(!position){
+        throw new NotFoundException(`Position con ID ${id} no encontrado`);        
+      }
+      return position;
+    } catch (error) {
+      throw new NotFoundException(`Position con ID ${id} no encontrado`);
+    }
   }
 
-  update(id: number, updatePositionDto: UpdatePositionDto) {
-    return `This action updates a #${id} position`;
+  async update(id: number, updatePositionDto: UpdatePositionDto) {
+    try {
+      const position = await this.PositionRep.findOneBy({ id });
+      if (!position) {
+        throw new NotFoundException(`Position con ID ${id} no encontrado`);
+      }
+
+      await this.PositionRep.update(id, updatePositionDto);
+
+      return { message: 'Posición actualizada correctamente' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al actualizar la posición');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} position`;
+  async remove(id: number) {
+      try {
+        const employee = await this.PositionRep.findOneBy({id});
+        if (!employee) {
+        throw new NotFoundException(`Positions con ID ${id} no encontrado`);
+      }
+      await this.PositionRep.remove(employee);
+      return { message: 'Empleado eliminado correctamente' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al eliminar el Position');
+    }
   }
 }
