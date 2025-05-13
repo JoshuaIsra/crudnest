@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Position } from "src/positions/entities/position.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Employee {
@@ -16,12 +17,13 @@ export class Employee {
     })
     email: string;
 
-    @Column()
-    position:string;
 
     @Column({
         default: true,
     })
-    status : boolean;
+    status : boolean;   
+    
+    @ManyToOne(()=>Position,(positions)=>positions.employees, {eager:true})
+    position :Position;
     
 }

@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
+import { Position } from "src/positions/entities/position.entity";
 
 export class CreateEmployeeDto {
     @IsString()
@@ -16,8 +17,7 @@ export class CreateEmployeeDto {
     @IsEmail()
     email: string;
 
-    @IsString()
     @IsNotEmpty()
-    position: string;
+    position: Position;
     
 }

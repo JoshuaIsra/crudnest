@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Employee } from "src/employees/entities/employee.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Position {
@@ -18,4 +19,7 @@ export class Position {
         default:true
     })
     isActive : boolean;
+
+    @OneToMany(()=>Employee,(employee)=>employee.position)
+    employees: Employee[];
 }
