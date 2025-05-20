@@ -26,7 +26,7 @@ export class EmployeesService {
 
   async findAll() {
     try {
-      return await this.employeeRepository.find();
+      return await this.employeeRepository.find({ where: { status: true } });
     } catch (e) {
       throw new Error('Error buscando employee: ' + e.message);
     }
@@ -55,7 +55,7 @@ export class EmployeesService {
     if(error instanceof NotFoundException){
       throw error;
     }
-    throw new InternalServerErrorException('Error al actualizar el Empleado');
+    throw +new InternalServerErrorException('Error al actualizar el Empleado');
    }
   }
 
@@ -68,7 +68,7 @@ export class EmployeesService {
       if (!employee) {
         throw new NotFoundException(`Employee con ID ${id} no encontrado`);
       }
-      await this.employeeRepository.remove(employee);
+      await this.employeeRepository.update(id, { status: false });
       return { message: 'Empleado eliminado correctamente' };
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -77,4 +77,39 @@ export class EmployeesService {
       throw new InternalServerErrorException('Error al eliminar el Empleado');
     }
   }
+
+  async search(busqueda: string) {
+    try {
+      const employees = await this.employeeRepository
+        .createQueryBuilder('employee')
+        .where('employee.name LIKE :name', { name: `%${busqueda}%` })
+        .orWhere('employee.lastName LIKE :lastName', { lastName: `%${busqueda}%` })
+        .getMany();
+      return employees;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al buscar el empleado');
+    }
+  }
+
+  async activar(id:number){
+    try{
+      const emp = await this.employeeRepository.findOneBy({id});
+      const empAct= await this.employeeRepository.preload({
+        id,
+        status :!emp?.status
+      });
+      if(!empAct){
+        throw new NotFoundException(`Empleado con ID ${id} no encontrado`);
+      }
+      await this.employeeRepository.save(empAct);
+      return empAct;
+    }
+    catch(error){
+      if(error instanceof NotFoundException){
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al activar el empleado');
+    }
+  }
 }
+
